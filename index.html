@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Sheep N Sheep</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <meta name="robots" content="noindex,nofollow" />
+  </head>
+  <body onresize="fitScreen();"  style="background: #231F20">
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width=506 height=900></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+        <div id="unity-logo-bottom"></div>
+      </div>
+      <div id="ad-banner" style="display: block; height: auto;"></div>
+    </div>
+    <div id="game-info" style="display: none; position: absolute; height: 100%; width: 100%; background: #231F20;">
+      <img id="game-icon" src="TemplateData/favicon.ico" style="position: absolute; width: 80px; height: 80px; left: 50%; top: 10%; transform: translate(-50%,-50%);">
+      <div id="game-name" style="position: absolute; left: 50%; top: 17%; transform: translate(-50%,-50%); color: white; font-size: 18px; font-weight: bold; font-family: 'Varela Round', sans-serif;">Sheep N Sheep</div>
+      <div id="game-rate" style="position: absolute; background: url('TemplateData/rate.png') left center / 20px 20px repeat-x; width: 100px; height: 20px; left: 50%; top: 20%; transform: translate(-50%,-50%);"></div>
+      <div id="ad-box" style="position: absolute; width: 100%; height: 48%; top: 25%;"></div>
+      <div id="game-desc" style="background: rgba(255, 255, 255, 0.2); border-radius: 6px; width: 90%; height: 10%; padding: 5px; position: absolute; z-index: 100; left: 50%; transform: translateX(-50%); bottom: 14%; overflow: auto; display: block; font-size: 0.9em; color: white; font-family: 'Varela Round', sans-serif;">
+        
+      </div>
+      <div id="game-loading-empty" style="position: absolute; width: 141px; height: 18px; left: 50%; transform: translateX(-50%); bottom: 6.5%; background: url('TemplateData/progress-bar-empty-dark.png') no-repeat center;">
+        <div id="game-loading-full" style="width: 0%; height: 18px; background: url('TemplateData/progress-bar-full-dark.png') no-repeat center"></div>
+      </div>
+      <div id="game-start" style="position: absolute; width: 90%; height: 5%; left: 50%; transform: translateX(-50%); bottom: 5%; color: white; display: flex; align-items: center; justify-content: center; border-radius: 5px; background-color: #69b608;">
+        <span class="letter">T</span>
+        <span class="letter">r</span>
+        <span class="letter">y</span>
+        <span class="letter">&nbsp;&nbsp;</span>
+        <span class="letter">N</span>
+        <span class="letter">o</span>
+        <span class="letter">w</span>
+      </div>
+    </div>
+    <script>
+      window.isShowGameInfo = false;
+      window.isLoadingEnd = false;
+      window.isGameStart = false;
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var gameInfo = document.querySelector("#game-info");
+      var gameLoadingFull = document.querySelector("#game-loading-full");
+      var adBox = document.querySelector("#ad-box");
+
+      container.style.display = window.isShowGameInfo ? "none" : "block";
+      gameInfo.style.display = window.isShowGameInfo ? "block" : "none";
+
+      function unityShowBanner(msg, type) {
+        console.log("%s:%s", type, msg);
+      }
+
+      window.alert = function(s) {
+        console.log(s);
+      }
+
+      function fitScreen() {
+        if(container.className == "unity-mobile") {
+          if(window.innerWidth > window.innerHeight) {
+            canvas.style.width = window.innerHeight * 9 / 16 + 'px';
+          } else {
+            canvas.style.width = window.innerWidth + 'px';
+          }
+          canvas.style.height = window.innerHeight;
+        } else {
+          if(canvas.width > canvas.height) {
+            canvas.style.width = "100vw";
+          } else {
+            canvas.style.width = "56.25vh";
+          }
+          canvas.style.height = "100vh";
+        }
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/SheepMatch_Release.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/SheepMatch_Release.data",
+        frameworkUrl: buildUrl + "/SheepMatch_Release.framework.js",
+        codeUrl: buildUrl + "/SheepMatch_Release.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Albayoo",
+        productName: "SheepMatch",
+        productVersion: "1.5.12",
+        showBanner: unityShowBanner,
+      };
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        container.className = "unity-mobile";
+        var lastTouchEnd = 0;
+        document.addEventListener('touchstart', function(event) {
+          if (event.touches.length > 1) {
+            event.preventDefault();
+          }
+        });
+        document.addEventListener('touchend', function(event) {
+          var now = (new Date()).getTime();
+          if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        }, false);
+        document.addEventListener('gesturestart', function(event) {
+          event.preventDefault();
+        });
+      }
+      fitScreen();
+
+      loadingBar.style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        showGameInfo();
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+          gameLoadingFull.style.width = 100 * progress + "%";
+        }).then((unityInstance) => {
+          window.isLoadingEnd = true;
+          loadingBar.style.display = "none";
+          if(window.isGameStart) {
+            adBox.innerHTML = "";
+            gameInfo.style.display = "none";
+            container.style.display = "block";
+          }
+          window.doInitBase();
+        }).catch((message) => {
+          console.log(message);
+        });
+      };
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
